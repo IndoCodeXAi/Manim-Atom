@@ -1,0 +1,40 @@
+name: Render Manim Video
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scenes/**'
+      - '.github/workflows/render.yml'
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcairo2-dev libpango1.0-dev ffmpeg
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Manim
+        run: |
+          python -m pip install --upgrade pip
+          pip install manim
+
+      - name: Render scene (medium quality, cepat)
+        run: |
+          manim -qm scenes/atom_scene.py AtomScene
+
+      - name: Upload hasil video
+        uses: actions/upload-artifact@v4
+        with:
+          name: atom-video
+          path: media/videos/atom_scene/720p30/AtomScene.mp4
